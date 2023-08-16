@@ -86,9 +86,9 @@ class Minesweeper {
       case Difficulty.easy:
         return Minesweeper.create(5, 5, 6);
       case Difficulty.intermediate:
-        return Minesweeper.create(9, 9, 14);
+        return Minesweeper.create(7, 7, 14);
       case Difficulty.hard:
-        return Minesweeper.create(12, 12, 30);
+        return Minesweeper.create(10, 10, 30);
     }
   }
   void _openSurrounding(int x, int y) {}

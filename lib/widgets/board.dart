@@ -34,7 +34,8 @@ class _MinesweeperBoardState extends State<MinesweeperBoard> {
           FilledButton(
             onPressed: () {
               setState(() {
-                game = Minesweeper.createWithDifficulty(Difficulty.easy);
+                game =
+                    Minesweeper.createWithDifficulty(Difficulty.intermediate);
               });
             },
             child: const Text("Randomise"),
