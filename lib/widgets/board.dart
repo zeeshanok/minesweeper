@@ -10,37 +10,39 @@ class MinesweeperBoard extends StatefulWidget {
 }
 
 class _MinesweeperBoardState extends State<MinesweeperBoard> {
-  Minesweeper game = Minesweeper.createWithDifficulty(Difficulty.easy);
+  Minesweeper game = Minesweeper.createWithDifficulty(Difficulty.hard);
 
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (final row in game.cellGrid)
-            Row(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                for (final cell in row)
-                  Expanded(
-                    child: MinesweeperCell(
-                      cell: cell,
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 500),
+        child: game.gameState == GameState.playing
+            ? Column(
+                key: const ValueKey('game'),
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (var j = 0; j < game.cellGrid.length; j++)
+                    Row(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        for (var i = 0; i < game.cellGrid[j].length; i++)
+                          Expanded(
+                            child: MinesweeperCell(
+                              cell: game.cellGrid[j][i],
+                              onFlag: () {},
+                              onOpen: () {
+                                setState(() {
+                                  game.open(i, j);
+                                });
+                              },
+                            ),
+                          )
+                      ],
                     ),
-                  )
-              ],
-            ),
-          const SizedBox(height: 6),
-          FilledButton(
-            onPressed: () {
-              setState(() {
-                game =
-                    Minesweeper.createWithDifficulty(Difficulty.intermediate);
-              });
-            },
-            child: const Text("Randomise"),
-          )
-        ],
+                ],
+              )
+            : const Text("bruh"),
       ),
     );
   }

@@ -3,22 +3,21 @@ import 'dart:math';
 typedef Coord = Point<int>;
 bool isInRangeInclusive(int x, int a, int b) => a <= x && x <= b;
 
-Set<Coord> getSurroundingPoints(Coord coord, Coord endCoord) {
-  final x = coord.x, y = coord.y;
+Set<(int x, int y)> getSurroundingPoints((int x, int y) coord, Coord endCoord) {
+  final x = coord.$1, y = coord.$2;
   return {
     (x - 1, y - 1),
-    (x, y - 1),
     (x + 1, y - 1),
-    (x + 1, y),
     (x + 1, y + 1),
-    (x, y + 1),
     (x - 1, y + 1),
+    (x, y - 1),
+    (x + 1, y),
+    (x, y + 1),
     (x - 1, y),
   }
       .where((p) =>
           isInRangeInclusive(p.$1, 0, endCoord.x) &&
           isInRangeInclusive(p.$2, 0, endCoord.y))
-      .map((e) => Point(e.$1, e.$2))
       .toSet();
 }
 
@@ -27,7 +26,10 @@ class Minesweeper {
 
   GameState gameState;
 
-  Minesweeper(this.cellGrid) : gameState = GameState.notStarted;
+  Minesweeper(this.cellGrid) : gameState = GameState.playing;
+
+  Point<int> get lastGridPoint =>
+      Point(cellGrid.first.length - 1, cellGrid.length - 1);
 
   // -1 is a mine
   factory Minesweeper.fromNumericGrid(List<List<int>> grid) {
@@ -42,7 +44,6 @@ class Minesweeper {
 
   factory Minesweeper.create(int boardWidth, int boardHeight, int mineCount) {
     final totalCells = boardWidth * boardHeight;
-    final lastPoint = Point(boardWidth - 1, boardHeight - 1);
     final rand = Random();
     var minesLeft = mineCount;
 
@@ -57,11 +58,22 @@ class Minesweeper {
       for (var i = 0; i < boardWidth; i++) {
         late final bool isMine;
 
-        if (minesLeft == totalCells - cellsDone) {
+        final isCorner = ({
+          // corner cells shouldn't be mines
+          (0, 0),
+          (boardWidth - 1, boardHeight - 1),
+          (boardWidth - 1, 0),
+          (0, boardHeight - 1),
+        }.contains((i, j)));
+
+        if (isCorner) {
+          isMine = false;
+        } else if (minesLeft == totalCells - cellsDone) {
           // coming here is very unlikely
           isMine = true;
         } else {
           final prob = minesLeft / (totalCells - cellsDone++);
+
           isMine = rand.nextDouble() <= prob;
         }
 
@@ -69,9 +81,10 @@ class Minesweeper {
           minesLeft--;
 
           grid[j][i] = -1; // set as mine
-          for (var point in getSurroundingPoints(Point(i, j), lastPoint)) {
-            if (grid[point.y][point.x] != -1) {
-              grid[point.y][point.x]++;
+          for (var point in getSurroundingPoints(
+              (i, j), Point(boardWidth - 1, boardHeight - 1))) {
+            if (grid[point.$2][point.$1] != -1) {
+              grid[point.$2][point.$1]++;
             }
           }
         }
@@ -86,24 +99,50 @@ class Minesweeper {
       case Difficulty.easy:
         return Minesweeper.create(5, 5, 6);
       case Difficulty.intermediate:
-        return Minesweeper.create(7, 7, 14);
+        return Minesweeper.create(7, 7, 9);
       case Difficulty.hard:
-        return Minesweeper.create(10, 10, 30);
+        return Minesweeper.create(10, 10, 20);
     }
   }
-  void _openSurrounding(int x, int y) {}
+  // void _openSurrounding(int x, int y, [int? fromX, int? fromY]) {
+  //   var points =
+  //       getSurroundingPoints((x, y), lastGridPoint, nonDiagonal: true);
+  //   if (fromX != null && fromY != null) {
+  //     points = points.where((p) => p != Point(fromX, fromY)).toSet();
+  //   }
+  //   for (final point in points) {
+  //     var cell = cellGrid[point.y][point.x];
+  //     cell.state = CellState.opened;
+  //     if (cell.neighbouringMineCount == 0 && cell.state == CellState.unopened) {
+  //       _openSurrounding(point.x, point.y, x, y);
+  //     }
+  //   }
+  // }
 
-  void open(int x, int y) {
+  void _open(int x, int y, {bool recursing = false}) {
+    // if (cell.state)
     var cell = cellGrid[y][x];
-    cell.state = CellState.opened;
-    if (cell.isMine) {
+    if (!recursing && cell.isMine) {
       // the only place where the game is lost
       gameState = GameState.defeat;
     }
-    // else if (cell.neighbouringMineCount > 0) {
-    //   _openSurrounding(x, y);
-    // }
+    if (cell.state == CellState.unopened) {
+      cell.state = CellState.opened;
+
+      if (cell.neighbouringMineCount == 0) {
+        final points = getSurroundingPoints((x, y), lastGridPoint);
+        for (final point in points) {
+          _open(point.$1, point.$2, recursing: true);
+        }
+      }
+    }
   }
+
+  void open(
+    int x,
+    int y,
+  ) =>
+      _open(x, y);
 }
 
 class Cell {

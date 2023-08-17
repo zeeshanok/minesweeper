@@ -4,8 +4,15 @@ import 'package:flutter/scheduler.dart';
 import 'package:minesweeper/logic/minesweeper.dart';
 
 class MinesweeperCell extends StatefulWidget {
-  const MinesweeperCell({super.key, required this.cell});
+  const MinesweeperCell({
+    super.key,
+    required this.cell,
+    required this.onFlag,
+    required this.onOpen,
+  });
   final Cell cell;
+
+  final void Function() onOpen, onFlag;
 
   @override
   State<MinesweeperCell> createState() => _MinesweeperCellState();
@@ -21,8 +28,6 @@ class _MinesweeperCellState extends State<MinesweeperCell>
   final GlobalKey key = GlobalKey();
 
   late final double widgetHeight;
-
-  bool isOpened = false;
 
   @override
   void initState() {
@@ -41,6 +46,8 @@ class _MinesweeperCellState extends State<MinesweeperCell>
   }
 
   void onDragStop() {
+    final shouldFirePullEvent = verticalOffset / widgetHeight >= 1;
+    debugPrint(shouldFirePullEvent.toString());
     controller.animateWith(SpringSimulation(
       SpringDescription.withDampingRatio(mass: 10, stiffness: 10, ratio: 0.3),
       verticalOffset,
@@ -54,8 +61,8 @@ class _MinesweeperCellState extends State<MinesweeperCell>
   }
 
   Color getBackgroundColor(Cell cell) {
-    if (!isOpened) {
-      return Colors.grey.shade900;
+    if (cell.state == CellState.unopened) {
+      return Colors.grey.shade500;
     }
     if (cell.isMine) {
       return Colors.redAccent.shade400;
@@ -76,11 +83,24 @@ class _MinesweeperCellState extends State<MinesweeperCell>
     return d[cell.neighbouringMineCount]!;
   }
 
+  String getText(Cell cell) {
+    if (cell.state == CellState.unopened) {
+      return "";
+    }
+    if (cell.isMine) {
+      return "!";
+    } else if (cell.neighbouringMineCount! > 0) {
+      return cell.neighbouringMineCount.toString();
+    } else {
+      return "";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       key: key,
-      onTap: () => setState(() => isOpened = !isOpened),
+      onTap: widget.onOpen,
       onPanStart: (details) => setState(() {
         isDragging = true;
       }),
@@ -93,11 +113,11 @@ class _MinesweeperCellState extends State<MinesweeperCell>
         children: [
           const Icon(Icons.flag_rounded, size: 30),
           Container(
-            margin: const EdgeInsets.all(2),
+            margin: const EdgeInsets.all(1),
             child: AspectRatio(
               aspectRatio: 1.0,
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(5),
+                borderRadius: BorderRadius.circular(3),
                 child: AnimatedBuilder(
                   animation: controller,
                   builder: (context, child) => Transform.translate(
@@ -108,18 +128,14 @@ class _MinesweeperCellState extends State<MinesweeperCell>
                     child: child,
                   ),
                   child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 100),
+                    duration: const Duration(milliseconds: 150),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(5),
                       color: getBackgroundColor(widget.cell),
                     ),
                     child: Center(
                       child: Text(
-                        isOpened
-                            ? (widget.cell.isMine
-                                ? "!"
-                                : widget.cell.neighbouringMineCount.toString())
-                            : "",
+                        getText(widget.cell),
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
