@@ -31,6 +31,8 @@ class Minesweeper {
   Point<int> get lastGridPoint =>
       Point(cellGrid.first.length - 1, cellGrid.length - 1);
 
+  int flaggedCount = 0;
+
   // -1 is a mine
   factory Minesweeper.fromNumericGrid(List<List<int>> grid) {
     return Minesweeper(
@@ -97,11 +99,11 @@ class Minesweeper {
   factory Minesweeper.createWithDifficulty(Difficulty difficulty) {
     switch (difficulty) {
       case Difficulty.easy:
-        return Minesweeper.create(5, 5, 6);
+        return Minesweeper.create(5, 8, 6);
       case Difficulty.intermediate:
-        return Minesweeper.create(7, 7, 9);
+        return Minesweeper.create(7, 10, 9);
       case Difficulty.hard:
-        return Minesweeper.create(10, 10, 20);
+        return Minesweeper.create(10, 14, 20);
     }
   }
   // void _openSurrounding(int x, int y, [int? fromX, int? fromY]) {
@@ -113,7 +115,7 @@ class Minesweeper {
   //   for (final point in points) {
   //     var cell = cellGrid[point.y][point.x];
   //     cell.state = CellState.opened;
-  //     if (cell.neighbouringMineCount == 0 && cell.state == CellState.unopened) {
+  //     if (cell.neighbouringMineCount == 0 && cell.isUnopened) {
   //       _openSurrounding(point.x, point.y, x, y);
   //     }
   //   }
@@ -126,7 +128,7 @@ class Minesweeper {
       // the only place where the game is lost
       gameState = GameState.defeat;
     }
-    if (cell.state == CellState.unopened) {
+    if (cell.isUnopened) {
       cell.state = CellState.opened;
 
       if (cell.neighbouringMineCount == 0) {
@@ -143,13 +145,32 @@ class Minesweeper {
     int y,
   ) =>
       _open(x, y);
+
+  void flag(int x, int y) {
+    final cell = cellGrid[y][x];
+    if (cell.isUnopened) {
+      cell.state = CellState.flagged;
+      if (cell.isMine) flaggedCount++;
+    }
+  }
+
+  void unflag(int x, int y) {
+    final cell = cellGrid[y][x];
+    if (cell.isFlagged) {
+      flaggedCount--;
+      cell.state = CellState.unopened;
+    }
+  }
 }
 
 class Cell {
   CellState state;
   final bool isMine;
-
   final int? neighbouringMineCount;
+
+  bool get isFlagged => state == CellState.flagged;
+  bool get isOpened => state == CellState.opened;
+  bool get isUnopened => state == CellState.unopened;
 
   Cell({
     required this.state,
@@ -167,6 +188,6 @@ class Cell {
 
 enum CellState { unopened, opened, flagged }
 
-enum GameState { notStarted, playing, paused, victory, defeat }
+enum GameState { playing, paused, victory, defeat }
 
 enum Difficulty { easy, intermediate, hard }
