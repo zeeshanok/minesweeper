@@ -3,31 +3,35 @@ import 'package:minesweeper/widgets/cell.dart';
 import 'package:minesweeper/logic/minesweeper.dart';
 
 class MinesweeperBoard extends StatefulWidget {
-  const MinesweeperBoard({super.key});
+  const MinesweeperBoard({super.key, required this.game});
+
+  final Minesweeper game;
 
   @override
   State<MinesweeperBoard> createState() => _MinesweeperBoardState();
 }
 
 class _MinesweeperBoardState extends State<MinesweeperBoard> {
-  Minesweeper game = Minesweeper.createWithDifficulty(Difficulty.easy);
-
   String getGameForegroundText() {
-    switch (game.gameState) {
+    switch (widget.game.state) {
+      case GameState.notStarted:
+        return "Not started";
       case GameState.victory:
         return "You Won";
       case GameState.defeat:
         return "You Lost";
       case GameState.paused:
         return "Paused";
-      default:
-        return "bruh";
+      case GameState.playing:
+        return "Playing";
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final isPlaying = game.gameState == GameState.playing;
+    final shouldAllowPlay = widget.game.state == GameState.playing ||
+        widget.game.state == GameState.notStarted;
+
     // gotta make sure the user slowly understands the games result
     const duration = Duration(seconds: 1);
     return Center(
@@ -35,39 +39,35 @@ class _MinesweeperBoardState extends State<MinesweeperBoard> {
         alignment: Alignment.center,
         children: [
           AnimatedScale(
-            scale: isPlaying ? 1 : 0.82,
+            scale: shouldAllowPlay ? 1 : 0.82,
             duration: duration + const Duration(milliseconds: 500),
             curve: Curves.easeInOut,
             child: IgnorePointer(
-              ignoring: !isPlaying,
+              ignoring: !shouldAllowPlay,
               child: AnimatedOpacity(
-                opacity: isPlaying ? 1 : 0.4,
+                opacity: shouldAllowPlay ? 1 : 0.4,
                 duration: duration,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    for (var j = 0; j < game.cellGrid.length; j++)
+                    for (var j = 0; j < widget.game.cellGrid.length; j++)
                       Row(
                         mainAxisSize: MainAxisSize.max,
                         children: [
-                          for (var i = 0; i < game.cellGrid[j].length; i++)
+                          for (var i = 0;
+                              i < widget.game.cellGrid[j].length;
+                              i++)
                             Expanded(
                               child: MinesweeperCell(
-                                cell: game.cellGrid[j][i],
+                                cell: widget.game.cellGrid[j][i],
                                 onFlag: () {
-                                  setState(() {
-                                    game.flag(i, j);
-                                  });
+                                  setState(() => widget.game.flag(i, j));
                                 },
                                 onUnflag: () {
-                                  setState(() {
-                                    game.unflag(i, j);
-                                  });
+                                  setState(() => widget.game.unflag(i, j));
                                 },
                                 onOpen: () {
-                                  setState(() {
-                                    game.open(i, j);
-                                  });
+                                  setState(() => widget.game.open(i, j));
                                 },
                               ),
                             )
@@ -79,10 +79,10 @@ class _MinesweeperBoardState extends State<MinesweeperBoard> {
             ),
           ),
           AnimatedOpacity(
-            opacity: isPlaying ? 0 : 1,
+            opacity: shouldAllowPlay ? 0 : 1,
             duration: duration,
             child: Visibility(
-              visible: !isPlaying,
+              visible: !shouldAllowPlay,
               child: Text(
                 getGameForegroundText(),
                 style: Theme.of(context).textTheme.displayMedium,

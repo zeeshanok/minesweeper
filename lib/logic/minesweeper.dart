@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 typedef Coord = Point<int>;
@@ -24,11 +25,35 @@ Set<(int x, int y)> getSurroundingPoints((int x, int y) coord, Coord endCoord) {
 class Minesweeper {
   final List<List<Cell>> cellGrid;
 
+  late Timer _stopwatchTimer;
+
+  final Stopwatch stopwatch;
+  final StreamController<Duration> _elapsedTimeController =
+      StreamController.broadcast();
+  Stream<Duration> get elapsedTimeStream => _elapsedTimeController.stream;
+
   late final int minesCount;
 
-  GameState gameState;
+  GameState _state;
+  GameState get state => _state;
+  set state(GameState state) {
+    _state = state;
+    if (_state == GameState.playing) {
+      startStopwatch();
+    } else {
+      stopStopwatch();
+    }
+  }
 
-  Minesweeper(this.cellGrid) : gameState = GameState.playing {
+  void start() {
+    if (state == GameState.notStarted) {
+      resume();
+    }
+  }
+
+  Minesweeper(this.cellGrid)
+      : _state = GameState.notStarted,
+        stopwatch = Stopwatch() {
     minesCount = cellGrid.fold(
       0,
       (previousValue, element) =>
@@ -111,7 +136,7 @@ class Minesweeper {
   factory Minesweeper.createWithDifficulty(Difficulty difficulty) {
     switch (difficulty) {
       case Difficulty.easy:
-        return Minesweeper.create(3, 3, 2);
+        return Minesweeper.create(5, 6, 5);
       case Difficulty.intermediate:
         return Minesweeper.create(7, 10, 9);
       case Difficulty.hard:
@@ -120,11 +145,12 @@ class Minesweeper {
   }
 
   void _open(int x, int y, {bool recursing = false}) {
+    start();
     var cell = cellGrid[y][x];
     if (!recursing && cell.isMine) {
       // the only place where the game is lost
       openAllMines();
-      gameState = GameState.defeat;
+      state = GameState.defeat;
     }
     if (cell.isUnopened) {
       cell.state = CellState.opened;
@@ -147,6 +173,7 @@ class Minesweeper {
   }
 
   void flag(int x, int y) {
+    start();
     final cell = cellGrid[y][x];
     if (cell.isUnopened) {
       cell.state = CellState.flagged;
@@ -156,6 +183,7 @@ class Minesweeper {
   }
 
   void unflag(int x, int y) {
+    start();
     final cell = cellGrid[y][x];
     if (cell.isFlagged) {
       flaggedCount--;
@@ -180,8 +208,28 @@ class Minesweeper {
         cell.isMine ? cell.isUnopened || cell.isFlagged : cell.isOpened));
     if (isVictory) {
       openAllMines();
-      gameState = GameState.victory;
+      state = GameState.victory;
     }
+  }
+
+  void stopStopwatch() {
+    stopwatch.stop();
+    _elapsedTimeController.sink.add(stopwatch.elapsed);
+    _stopwatchTimer.cancel();
+  }
+
+  void startStopwatch() {
+    stopwatch.start();
+    _stopwatchTimer = Timer.periodic(const Duration(seconds: 1),
+        (_) => _elapsedTimeController.sink.add(stopwatch.elapsed));
+  }
+
+  void pause() {
+    state = GameState.paused;
+  }
+
+  void resume() {
+    state = GameState.playing;
   }
 }
 
@@ -210,6 +258,6 @@ class Cell {
 
 enum CellState { unopened, opened, flagged }
 
-enum GameState { playing, paused, victory, defeat }
+enum GameState { notStarted, playing, paused, victory, defeat }
 
 enum Difficulty { easy, intermediate, hard }
