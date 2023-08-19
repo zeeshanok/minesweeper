@@ -10,27 +10,33 @@ class MinesweeperBoard extends StatefulWidget {
 }
 
 class _MinesweeperBoardState extends State<MinesweeperBoard> {
-  Minesweeper game = Minesweeper.createWithDifficulty(Difficulty.hard);
+  Minesweeper game = Minesweeper.createWithDifficulty(Difficulty.easy);
 
   String getGameForegroundText() {
-    if (game.gameState == GameState.defeat) {
-      return "You Lost";
-    } else {
-      return "bruh";
+    switch (game.gameState) {
+      case GameState.victory:
+        return "You Won";
+      case GameState.defeat:
+        return "You Lost";
+      case GameState.paused:
+        return "Paused";
+      default:
+        return "bruh";
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final isPlaying = game.gameState == GameState.playing;
-    const duration = Duration(milliseconds: 500);
+    // gotta make sure the user slowly understands the games result
+    const duration = Duration(seconds: 1);
     return Center(
       child: Stack(
         alignment: Alignment.center,
         children: [
           AnimatedScale(
             scale: isPlaying ? 1 : 0.82,
-            duration: duration,
+            duration: duration + const Duration(milliseconds: 500),
             curve: Curves.easeInOut,
             child: IgnorePointer(
               ignoring: !isPlaying,

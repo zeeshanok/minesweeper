@@ -24,9 +24,21 @@ Set<(int x, int y)> getSurroundingPoints((int x, int y) coord, Coord endCoord) {
 class Minesweeper {
   final List<List<Cell>> cellGrid;
 
+  late final int minesCount;
+
   GameState gameState;
 
-  Minesweeper(this.cellGrid) : gameState = GameState.playing;
+  Minesweeper(this.cellGrid) : gameState = GameState.playing {
+    minesCount = cellGrid.fold(
+      0,
+      (previousValue, element) =>
+          previousValue +
+          element.fold(
+            0,
+            (value, element) => value + (element.isMine ? 1 : 0),
+          ),
+    );
+  }
 
   Point<int> get lastGridPoint =>
       Point(cellGrid.first.length - 1, cellGrid.length - 1);
@@ -99,33 +111,19 @@ class Minesweeper {
   factory Minesweeper.createWithDifficulty(Difficulty difficulty) {
     switch (difficulty) {
       case Difficulty.easy:
-        return Minesweeper.create(5, 8, 6);
+        return Minesweeper.create(3, 3, 2);
       case Difficulty.intermediate:
         return Minesweeper.create(7, 10, 9);
       case Difficulty.hard:
         return Minesweeper.create(10, 14, 20);
     }
   }
-  // void _openSurrounding(int x, int y, [int? fromX, int? fromY]) {
-  //   var points =
-  //       getSurroundingPoints((x, y), lastGridPoint, nonDiagonal: true);
-  //   if (fromX != null && fromY != null) {
-  //     points = points.where((p) => p != Point(fromX, fromY)).toSet();
-  //   }
-  //   for (final point in points) {
-  //     var cell = cellGrid[point.y][point.x];
-  //     cell.state = CellState.opened;
-  //     if (cell.neighbouringMineCount == 0 && cell.isUnopened) {
-  //       _openSurrounding(point.x, point.y, x, y);
-  //     }
-  //   }
-  // }
 
   void _open(int x, int y, {bool recursing = false}) {
-    // if (cell.state)
     var cell = cellGrid[y][x];
     if (!recursing && cell.isMine) {
       // the only place where the game is lost
+      openAllMines();
       gameState = GameState.defeat;
     }
     if (cell.isUnopened) {
@@ -143,8 +141,10 @@ class Minesweeper {
   void open(
     int x,
     int y,
-  ) =>
-      _open(x, y);
+  ) {
+    _open(x, y);
+    checkResult();
+  }
 
   void flag(int x, int y) {
     final cell = cellGrid[y][x];
@@ -152,6 +152,7 @@ class Minesweeper {
       cell.state = CellState.flagged;
       if (cell.isMine) flaggedCount++;
     }
+    checkResult();
   }
 
   void unflag(int x, int y) {
@@ -159,6 +160,27 @@ class Minesweeper {
     if (cell.isFlagged) {
       flaggedCount--;
       cell.state = CellState.unopened;
+    }
+    checkResult();
+  }
+
+  void openAllMines() {
+    for (var j = 0; j < cellGrid.length; j++) {
+      for (var i = 0; i < cellGrid[j].length; i++) {
+        final cell = cellGrid[j][i];
+        if (cell.isMine) {
+          cell.state = CellState.opened;
+        }
+      }
+    }
+  }
+
+  void checkResult() {
+    final isVictory = cellGrid.every((element) => element.every((cell) =>
+        cell.isMine ? cell.isUnopened || cell.isFlagged : cell.isOpened));
+    if (isVictory) {
+      openAllMines();
+      gameState = GameState.victory;
     }
   }
 }
