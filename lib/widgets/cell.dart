@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:minesweeper/logic/minesweeper.dart';
+import 'package:flutter/services.dart';
 
 class MinesweeperCell extends StatefulWidget {
   const MinesweeperCell({
@@ -30,6 +31,10 @@ class _MinesweeperCellState extends State<MinesweeperCell>
 
   late final double widgetHeight;
 
+  bool hasVibrated = false;
+
+  bool get shouldFirePullEvent => verticalOffset.abs() / widgetHeight >= 1;
+
   @override
   void initState() {
     super.initState();
@@ -51,7 +56,6 @@ class _MinesweeperCellState extends State<MinesweeperCell>
   }
 
   void onDragStop() {
-    final shouldFirePullEvent = verticalOffset / widgetHeight >= 1;
     if (shouldFirePullEvent) {
       if (widget.cell.isFlagged) {
         widget.onUnflag();
@@ -75,7 +79,10 @@ class _MinesweeperCellState extends State<MinesweeperCell>
     if (cell.isUnopened) {
       return Colors.grey.shade500;
     }
-    if (cell.isMine || cell.isFlagged) {
+    if (cell.isFlagged) {
+      return Colors.redAccent.shade200;
+    }
+    if (cell.isMine) {
       return Colors.redAccent.shade400;
     }
 
@@ -95,11 +102,11 @@ class _MinesweeperCellState extends State<MinesweeperCell>
   }
 
   Widget getCellForeground(Cell cell) {
-    const style = TextStyle(fontSize: 20, fontWeight: FontWeight.bold);
+    const style = TextStyle(fontSize: 25, fontWeight: FontWeight.bold);
     if (cell.isUnopened) {
       return Container();
     } else if (cell.isFlagged) {
-      return const Icon(Icons.flag_rounded);
+      return const Icon(Icons.flag_rounded, size: 25);
     } else if (cell.isMine) {
       return const Text("!", style: style);
     } else if (cell.neighbouringMineCount! > 0) {
@@ -151,8 +158,17 @@ class _MinesweeperCellState extends State<MinesweeperCell>
             onPanStart: (details) => setState(() {
               isDragging = true;
             }),
-            onPanUpdate: (details) =>
-                setState(() => verticalOffset += details.delta.dy),
+            onPanUpdate: (details) async {
+              setState(() => verticalOffset += details.delta.dy);
+              if (shouldFirePullEvent) {
+                if (!hasVibrated) {
+                  hasVibrated = true;
+                  await HapticFeedback.vibrate();
+                }
+              } else {
+                hasVibrated = false;
+              }
+            },
             onPanEnd: (e) => onDragStop(),
             onPanCancel: () => onDragStop(),
             child: child,

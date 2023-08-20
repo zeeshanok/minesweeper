@@ -3,9 +3,15 @@ import 'package:minesweeper/widgets/cell.dart';
 import 'package:minesweeper/logic/minesweeper.dart';
 
 class MinesweeperBoard extends StatefulWidget {
-  const MinesweeperBoard({super.key, required this.game});
+  const MinesweeperBoard(
+      {super.key,
+      required this.game,
+      required this.onFlag,
+      required this.onUnflag,
+      required this.onOpen});
 
   final Minesweeper game;
+  final void Function(int x, int y) onFlag, onUnflag, onOpen;
 
   @override
   State<MinesweeperBoard> createState() => _MinesweeperBoardState();
@@ -33,7 +39,7 @@ class _MinesweeperBoardState extends State<MinesweeperBoard> {
         widget.game.state == GameState.notStarted;
 
     // gotta make sure the user slowly understands the games result
-    const duration = Duration(seconds: 1);
+    const duration = Duration(milliseconds: 400);
     return Center(
       child: Stack(
         alignment: Alignment.center,
@@ -61,13 +67,13 @@ class _MinesweeperBoardState extends State<MinesweeperBoard> {
                               child: MinesweeperCell(
                                 cell: widget.game.cellGrid[j][i],
                                 onFlag: () {
-                                  setState(() => widget.game.flag(i, j));
+                                  widget.onFlag(i, j);
                                 },
                                 onUnflag: () {
-                                  setState(() => widget.game.unflag(i, j));
+                                  widget.onUnflag(i, j);
                                 },
                                 onOpen: () {
-                                  setState(() => widget.game.open(i, j));
+                                  widget.onOpen(i, j);
                                 },
                               ),
                             )

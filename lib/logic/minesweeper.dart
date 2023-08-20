@@ -147,7 +147,7 @@ class Minesweeper {
   void _open(int x, int y, {bool recursing = false}) {
     start();
     var cell = cellGrid[y][x];
-    if (!recursing && cell.isMine) {
+    if (!recursing && cell.isMine && !cell.isFlagged) {
       // the only place where the game is lost
       openAllMines();
       state = GameState.defeat;
