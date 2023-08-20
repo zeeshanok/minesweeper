@@ -53,34 +53,44 @@ class _MinesweeperBoardState extends State<MinesweeperBoard> {
               child: AnimatedOpacity(
                 opacity: shouldAllowPlay ? 1 : 0.4,
                 duration: duration,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    for (var j = 0; j < widget.game.cellGrid.length; j++)
-                      Row(
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          for (var i = 0;
-                              i < widget.game.cellGrid[j].length;
-                              i++)
-                            Expanded(
-                              child: MinesweeperCell(
-                                cell: widget.game.cellGrid[j][i],
-                                onFlag: () {
-                                  widget.onFlag(i, j);
-                                },
-                                onUnflag: () {
-                                  widget.onUnflag(i, j);
-                                },
-                                onOpen: () {
-                                  widget.onOpen(i, j);
-                                },
-                              ),
-                            )
-                        ],
-                      ),
-                  ],
-                ),
+                child: LayoutBuilder(builder: (context, constraints) {
+                  final biggest = constraints.biggest;
+                  final size = biggest.shortestSide /
+                      (biggest.aspectRatio > 1
+                          ? widget.game.cellGrid.length
+                          : widget.game.cellGrid[0].length);
+                  return SizedBox(
+                    height: constraints.biggest.height,
+                    width: constraints.biggest.width,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        for (var j = 0; j < widget.game.cellGrid.length; j++)
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              for (var i = 0;
+                                  i < widget.game.cellGrid[j].length;
+                                  i++)
+                                MinesweeperCell(
+                                  size: size,
+                                  cell: widget.game.cellGrid[j][i],
+                                  onFlag: () {
+                                    widget.onFlag(i, j);
+                                  },
+                                  onUnflag: () {
+                                    widget.onUnflag(i, j);
+                                  },
+                                  onOpen: () {
+                                    widget.onOpen(i, j);
+                                  },
+                                )
+                            ],
+                          ),
+                      ],
+                    ),
+                  );
+                }),
               ),
             ),
           ),

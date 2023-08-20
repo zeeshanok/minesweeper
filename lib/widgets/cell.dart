@@ -11,8 +11,10 @@ class MinesweeperCell extends StatefulWidget {
     required this.onFlag,
     required this.onUnflag,
     required this.onOpen,
+    required this.size,
   });
   final Cell cell;
+  final double size;
 
   final void Function() onOpen, onFlag, onUnflag;
 
@@ -122,28 +124,31 @@ class _MinesweeperCellState extends State<MinesweeperCell>
       alignment: Alignment.center,
       children: [
         const Icon(Icons.flag_circle_rounded, size: 30),
-        Container(
-          margin: const EdgeInsets.all(1),
-          child: AspectRatio(
-            aspectRatio: 1.0,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(3),
-              child: AnimatedBuilder(
-                animation: controller,
-                builder: (context, child) => Transform.translate(
-                  offset: Offset(
-                    0,
-                    isDragging ? verticalOffset : controller.value,
+        SizedBox.square(
+          dimension: widget.size,
+          child: Container(
+            margin: const EdgeInsets.all(1),
+            child: AspectRatio(
+              aspectRatio: 1.0,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(3),
+                child: AnimatedBuilder(
+                  animation: controller,
+                  builder: (context, child) => Transform.translate(
+                    offset: Offset(
+                      0,
+                      isDragging ? verticalOffset : controller.value,
+                    ),
+                    child: child,
                   ),
-                  child: child,
-                ),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 150),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    color: getBackgroundColor(widget.cell),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                      color: getBackgroundColor(widget.cell),
+                    ),
+                    child: Center(child: getCellForeground(widget.cell)),
                   ),
-                  child: Center(child: getCellForeground(widget.cell)),
                 ),
               ),
             ),

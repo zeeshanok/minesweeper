@@ -55,11 +55,13 @@ class _PlayPageState extends State<PlayPage> {
                   onPressed: getPauseOnPressed(),
                 ),
               ),
-              MinesweeperBoard(
-                game: game,
-                onOpen: (x, y) => setState(() => game.open(x, y)),
-                onFlag: (x, y) => setState(() => game.flag(x, y)),
-                onUnflag: (x, y) => setState(() => game.unflag(x, y)),
+              Expanded(
+                child: MinesweeperBoard(
+                  game: game,
+                  onOpen: (x, y) => setState(() => game.open(x, y)),
+                  onFlag: (x, y) => setState(() => game.flag(x, y)),
+                  onUnflag: (x, y) => setState(() => game.unflag(x, y)),
+                ),
               ),
               MinesweeperClock(elapsedTimeStream: game.elapsedTimeStream)
             ],
