@@ -24,12 +24,12 @@ class StartPage extends StatelessWidget {
               ),
               Tutorial(
                 mineCount: 1,
-                message: "${isDesktop() ? "Click" : "Tap"} to open a mine",
+                message: "${isDesktop() ? "Click" : "Tap"} to open a cell",
               ),
               Tutorial(
                 mineCount: 2,
                 message:
-                    "${isDesktop() ? "Right click" : "Swipe up/down"} to flag a mine",
+                    "${isDesktop() ? "Right click" : "Swipe up/down"} to flag a cell",
               )
             ],
           ),
