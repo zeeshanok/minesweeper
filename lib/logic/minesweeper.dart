@@ -28,11 +28,18 @@ class Minesweeper {
   late Timer _stopwatchTimer;
 
   final Stopwatch stopwatch;
-  final StreamController<Duration> _elapsedTimeController =
-      StreamController.broadcast();
+  final StreamController<Duration> _elapsedTimeController = StreamController();
   Stream<Duration> get elapsedTimeStream => _elapsedTimeController.stream;
 
-  late final int minesCount;
+  int _minesCount = 0;
+  int get minesCount => _minesCount;
+  set minesCount(int value) {
+    _minesCount = value;
+    _minesCountStream.sink.add(_minesCount);
+  }
+
+  final StreamController<int> _minesCountStream = StreamController();
+  Stream<int> get minesCountStream => _minesCountStream.stream;
 
   GameState _state;
   GameState get state => _state;
@@ -174,6 +181,7 @@ class Minesweeper {
 
   void flag(int x, int y) {
     start();
+    minesCount--;
     final cell = cellGrid[y][x];
     if (cell.isUnopened) {
       cell.state = CellState.flagged;
@@ -184,6 +192,7 @@ class Minesweeper {
 
   void unflag(int x, int y) {
     start();
+    minesCount++;
     final cell = cellGrid[y][x];
     if (cell.isFlagged) {
       flaggedCount--;

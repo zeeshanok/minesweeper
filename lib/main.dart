@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:minesweeper/widgets/pages/start_page.dart';
 
 void main() {
   runApp(const MyApp());
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitDown,
+    DeviceOrientation.portraitUp,
+  ]);
 }
 
 class MyApp extends StatelessWidget {
@@ -17,12 +22,17 @@ class MyApp extends StatelessWidget {
         fontFamily: 'InterTight',
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.transparent,
-          titleTextStyle: TextStyle(fontSize: 28, fontFamily: 'InterTight'),
+          titleTextStyle: TextStyle(
+            fontSize: 28,
+            fontFamily: 'InterTight',
+            color: Colors.white,
+          ),
         ),
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.greenAccent,
           brightness: Brightness.dark,
         ),
+        splashFactory: NoSplash.splashFactory,
         useMaterial3: true,
       ),
       home: const StartPage(),
