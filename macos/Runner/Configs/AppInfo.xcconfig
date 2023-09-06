@@ -8,7 +8,7 @@
 PRODUCT_NAME = minesweeper
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.example.minesweeper
+PRODUCT_BUNDLE_IDENTIFIER = com.zeeshanok.minesweeper
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2023 com.example. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2023 com.zeeshanok. All rights reserved.

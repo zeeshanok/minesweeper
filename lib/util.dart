@@ -1,6 +1,9 @@
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 
-bool isDesktop() =>
-    kIsWeb || Platform.isWindows || Platform.isLinux || Platform.isMacOS;
+final _isDesktop = <TargetPlatform>{
+  TargetPlatform.linux,
+  TargetPlatform.macOS,
+  TargetPlatform.windows,
+}.contains(defaultTargetPlatform);
+
+bool isDesktop() => _isDesktop;

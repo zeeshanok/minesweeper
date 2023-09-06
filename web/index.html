@@ -38,6 +38,26 @@
   </script>
   <!-- This script adds the flutter initialization JS code -->
   <script src="flutter.js" defer></script>
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+    body {
+      background-color: #191c1a;
+      color: white;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    div.centerme {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+    }
+  </style>
 </head>
 <body>
   <script>
@@ -55,5 +75,11 @@
       });
     });
   </script>
+
+  <div class="centerme">
+    <p>
+      Loading...
+    </p>
+  </div>
 </body>
 </html>

@@ -1,16 +1,20 @@
 # minesweeper
 
-A new Flutter project.
+The classic [Minesweeper](https://en.wikipedia.org/wiki/Minesweeper_(video_game)) game built using [Flutter](https://flutter.dev).
 
-## Getting Started
+(Tested on Android, Windows, and the Web)
 
-This project is a starting point for a Flutter application.
+## Installing
+Android:
+Windows: 
+Web
 
-A few resources to get you started if this is your first Flutter project:
+## How to play
+The game has an instructions section but if you'd like you can understand how to play here:
+- __To open a cell:__ Simply tap/click.
+- __To flag a cell:__ Swipe up/down for mobile and right-click for desktop.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+To learn how the game works visit [here](https://en.wikipedia.org/wiki/Minesweeper_(video_game)#Gameplay).
+## Screenshots
+<img src="images/home.jpg" alt="Minesweeeper home page" height="500"> 
+<img src="images/game.jpg" alt="Minesweeper game" height="500">
