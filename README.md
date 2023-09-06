@@ -5,9 +5,9 @@ The classic [Minesweeper](https://en.wikipedia.org/wiki/Minesweeper_(video_game)
 (Tested on Android, Windows, and the Web)
 
 ## Installing
-Android:
-Windows: 
-Web
+- Android: [Download](https://github.com/zeeshanok/minesweeper/releases/download/v1.0.0/android-arm64-v8a.apk)
+- Windows: [Download](https://github.com/zeeshanok/minesweeper/releases/download/v1.0.0/windows-x64.zip)
+- Web: [https://minesweeper-zeeshanok.vercel.app/](https://minesweeper-zeeshanok.vercel.app/)
 
 ## How to play
 The game has an instructions section but if you'd like you can understand how to play here:
