@@ -66,40 +66,19 @@ class _MinesweeperBoardState extends State<MinesweeperBoard> {
                 duration: duration + const Duration(milliseconds: 500),
                 curve: Curves.easeInOut,
                 child: IgnorePointer(
-                    ignoring: !shouldAllowPlay,
-                    child: AnimatedOpacity(
-                      opacity: shouldAllowPlay ? 1 : 0.4,
-                      duration: duration,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          for (var j = 0; j < widget.game.cellGrid.length; j++)
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                for (var i = 0;
-                                    i < widget.game.cellGrid[j].length;
-                                    i++)
-                                  Expanded(
-                                      child: MinesweeperCell(
-                                    size: size,
-                                    cell: widget.game.cellGrid[j][i],
-                                    onFlag: () {
-                                      widget.onFlag(i, j);
-                                    },
-                                    onUnflag: () {
-                                      widget.onUnflag(i, j);
-                                    },
-                                    onOpen: () {
-                                      widget.onOpen(i, j);
-                                    },
-                                  ))
-                              ],
-                            ),
-                        ],
-                      ),
-                    )),
+                  ignoring: !shouldAllowPlay,
+                  child: AnimatedOpacity(
+                    opacity: shouldAllowPlay ? 1 : 0.4,
+                    duration: duration,
+                    child: RawMinesweeperBoard(
+                      game: widget.game,
+                      onFlag: widget.onFlag,
+                      onOpen: widget.onOpen,
+                      onUnflag: widget.onUnflag,
+                      size: size,
+                    ),
+                  ),
+                ),
               ),
               AnimatedOpacity(
                 opacity: shouldAllowPlay ? 0 : 1,
@@ -116,6 +95,53 @@ class _MinesweeperBoardState extends State<MinesweeperBoard> {
           ),
         );
       },
+    );
+  }
+}
+
+class RawMinesweeperBoard extends StatelessWidget {
+  const RawMinesweeperBoard({
+    super.key,
+    required this.size,
+    required this.game,
+    required this.onFlag,
+    required this.onUnflag,
+    required this.onOpen,
+  });
+
+  final double size;
+  final Minesweeper game;
+  final void Function(int x, int y) onFlag, onUnflag, onOpen;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        for (var j = 0; j < game.cellGrid.length; j++)
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (var i = 0; i < game.cellGrid[j].length; i++)
+                Expanded(
+                  child: MinesweeperCell(
+                    size: size,
+                    cell: game.cellGrid[j][i],
+                    onFlag: () {
+                      onFlag(i, j);
+                    },
+                    onUnflag: () {
+                      onUnflag(i, j);
+                    },
+                    onOpen: () {
+                      onOpen(i, j);
+                    },
+                  ),
+                )
+            ],
+          ),
+      ],
     );
   }
 }

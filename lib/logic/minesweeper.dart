@@ -16,9 +16,11 @@ Set<(int x, int y)> getSurroundingPoints((int x, int y) coord, Coord endCoord) {
     (x, y + 1),
     (x - 1, y),
   }
-      .where((p) =>
-          isInRangeInclusive(p.$1, 0, endCoord.x) &&
-          isInRangeInclusive(p.$2, 0, endCoord.y))
+      .where(
+        (p) =>
+            isInRangeInclusive(p.$1, 0, endCoord.x) &&
+            isInRangeInclusive(p.$2, 0, endCoord.y),
+      )
       .toSet();
 }
 
@@ -88,7 +90,8 @@ class Minesweeper {
     );
   }
 
-  factory Minesweeper.create(int boardWidth, int boardHeight, int mineCount) {
+  factory Minesweeper.fromDimensions(
+      int boardWidth, int boardHeight, int mineCount) {
     final totalCells = boardWidth * boardHeight;
     final rand = Random();
     var minesLeft = mineCount;
@@ -143,11 +146,11 @@ class Minesweeper {
   factory Minesweeper.createWithDifficulty(Difficulty difficulty) {
     switch (difficulty) {
       case Difficulty.easy:
-        return Minesweeper.create(5, 6, 5);
+        return Minesweeper.fromDimensions(5, 6, 5);
       case Difficulty.intermediate:
-        return Minesweeper.create(7, 10, 9);
+        return Minesweeper.fromDimensions(7, 10, 9);
       case Difficulty.hard:
-        return Minesweeper.create(10, 14, 20);
+        return Minesweeper.fromDimensions(10, 14, 20);
     }
   }
 

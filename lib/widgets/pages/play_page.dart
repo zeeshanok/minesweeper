@@ -51,27 +51,24 @@ class _PlayPageState extends State<PlayPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    AnimatedVisibility(
-                      visible: game.state != GameState.playing,
-                      duration: const Duration(milliseconds: 300),
-                      child: TextButton.icon(
-                        onPressed: () => Navigator.pop(context),
-                        icon: const Icon(Icons.home_rounded),
-                        label: const Text("Main Menu"),
-                      ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  AnimatedVisibility(
+                    visible: game.state != GameState.playing,
+                    duration: const Duration(milliseconds: 300),
+                    child: TextButton.icon(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.home_rounded),
+                      label: const Text("Main Menu"),
                     ),
-                    TextButton.icon(
-                      label: Text(getPauseText()),
-                      icon: Icon(getPauseIcon()),
-                      onPressed: getPauseOnPressed(),
-                    )
-                  ],
-                ),
+                  ),
+                  TextButton.icon(
+                    label: Text(getPauseText()),
+                    icon: Icon(getPauseIcon()),
+                    onPressed: getPauseOnPressed(),
+                  ),
+                ],
               ),
               Expanded(
                 child: Padding(
@@ -89,20 +86,21 @@ class _PlayPageState extends State<PlayPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   StreamLabelledIcon(
-                      icon: Icons.timer_outlined,
-                      stream: game.elapsedTimeStream,
-                      initialData: Duration.zero,
-                      textBuilder: (data) {
-                        final total = data.inSeconds;
-                        final mins = total ~/ 60;
-                        final seconds = total % 60;
-                        return "${_f.format(mins)}:${_f.format(seconds)}";
-                      }),
+                    icon: Icons.timer_outlined,
+                    stream: game.elapsedTimeStream,
+                    initialData: Duration.zero,
+                    textBuilder: (data) {
+                      final total = data.inSeconds;
+                      final mins = total ~/ 60;
+                      final seconds = total % 60;
+                      return "${_f.format(mins)}:${_f.format(seconds)}";
+                    },
+                  ),
                   const SizedBox(width: 8),
                   StreamLabelledIcon(
                     icon: Icons.flag_rounded,
                     stream: game.minesCountStream,
-                    initialData: 0,
+                    initialData: game.minesCount,
                     textBuilder: (data) => data.toString(),
                   ),
                 ],

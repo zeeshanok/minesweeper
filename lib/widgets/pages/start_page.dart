@@ -54,10 +54,14 @@ class StartPage extends StatelessWidget {
         ],
       ),
       body: Center(
-          child: ModeSelector(
-              onSelect: (d) => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => PlayPage(difficulty: d),
-                  )))),
+        child: ModeSelector(
+          onSelect: (diff) => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => PlayPage(difficulty: diff),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -70,6 +74,10 @@ class ModeSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final children = [
+      Text(
+        "Choose difficulty",
+        style: TextStyle(fontSize: 22),
+      ),
       DescriptiveButton(
         onPressed: () => onSelect(Difficulty.easy),
         label: "Easy",
@@ -88,6 +96,7 @@ class ModeSelector extends StatelessWidget {
     ];
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: children,
     );
   }
